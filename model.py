@@ -17,14 +17,12 @@ def forward(centre_word_id, context_word_id, negative_word_ids, input_vectors, o
 
 
 def sigmoid(x):
-    result = np.zeros_like(x)
-    for i in range(len(x)):
-        if x[i] >= 0:
-            result[i] = 1 / (1 + np.exp(-x[i]))
-        else:
-            result[i] = np.exp(x[i]) / (1 + np.exp(x[i]))
-
-    return result
+    res = np.zeros_like(x)
+    positive = x >= 0
+    res[positive] = 1 / (1 + np.exp(-x[positive]))
+    negative = x < 0
+    res[negative] = np.exp(x[negative]) / (1 + np.exp(x[negative]))
+    return res
 
 def compute_loss(positive_score, negative_scores):
     positive_loss = np.log(sigmoid(positive_score) + 1e-10)

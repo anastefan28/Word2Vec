@@ -1,6 +1,8 @@
 from collections import Counter
 
 import numpy as np
+from eval import most_similar
+from train import train
 from model import init_vectors
 from data import tokenise, build_vocab, build_noise_distribution, generate_skipgram_pairs
 
@@ -41,5 +43,15 @@ input_vectors, output_vectors = init_vectors(vocab_size, embed_dim)
 # print(f"{input_vectors[0][:5]}")   
 # print(f"{output_vectors[0][:5]}")   
 
+pairs_array = np.array(pairs)
+input_vectors, output_vectors = train(pairs_array, input_vectors, output_vectors, noise_dist, vocab_size, lr=0.025, epochs=10, k_negatives=15)
 
+test_words = ["king", "love", "man", "war", "god"]
 
+with open("results.txt", "w") as f:
+    for word in test_words:
+        if word in word2id:
+            neighbours = most_similar(word, input_vectors, output_vectors, word2id, id2word, topn=5)
+            f.write(f"\n'{word}' most similar:\n")
+            for neighbour, score in neighbours:
+                f.write(f"  {neighbour} {score}\n")
